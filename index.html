@@ -1,26 +1,14 @@
-<html>
-    <head>
-        <meta name="color-scheme" content="light dark">
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="true">
-        <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@200;300;400;500;600;700;800;900&amp;display=swa">
-    </head>
-    <body>
-        <pre style="word-wrap: break-word; white-space: pre-wrap;">
-        #!/usr/bin/bash
-        # &gt; curl https://do_dotfiles.savor.page | sh
+#!/usr/bin/bash
+# &gt; curl https://do_dotfiles.savor.page | sh
 
-        sudo apt update &amp;&amp; sudo apt install -y curl git
+sudo apt update &amp;&amp; sudo apt install -y curl git
 
-        (
-            echo "Clone dotfiles..."
-            cd $HOME &amp;&amp;
-            git clone https://github.com/jrmysvr/dotfiles &amp;&amp;
-            cd dotfiles &amp;&amp;
-            bash setup.sh
-        )
+(
+    echo "Clone dotfiles..."
+    cd $HOME &amp;&amp;
+    git clone https://github.com/jrmysvr/dotfiles &amp;&amp;
+    cd dotfiles &amp;&amp;
+    bash setup.sh
+)
 
-        echo "All done"
-        </pre>
-    </body>
-</html>
+echo "All done"
