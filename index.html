@@ -9,7 +9,7 @@ sudo apt update && sudo apt install -y curl git
     cd "$HOME" && \
     git clone https://github.com/jrmysvr/dotfiles && \
     cd dotfiles && \
-    bash setup.sh
+    bash setup.sh "$1"
 )
 
 echo "All done"
