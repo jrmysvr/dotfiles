@@ -3,7 +3,7 @@
 #------------------------
 # Install Apt Packages
 #------------------------
-apt() {
+setup_apt() {
     sudo apt update && sudo apt install -y \
         build-essential \
         cmake \
@@ -26,38 +26,38 @@ apt() {
 
 # Tailscale
 # https://tailscale.com/download
-tailscale() {
+setup_tailscale() {
     curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.gpg | sudo apt-key add -
     curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     sudo apt update && sudo apt install tailscale
     ## Authenticate
     # sudo tailscale up
     ## Show Tailscale IP
-    # ip addr show tailscale0 
+    # ip addr show tailscale0
 }
 
 # Rust
 # https://www.rust-lang.org/tools/install
-rust() {
+setup_rust() {
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 }
 
 # Nim
 # https://github.com/dom96/choosenim#unix
-nim() {
+setup_nim() {
     curl https://nim-lang.org/choosenim/init.sh -sSf | sh
 }
 
 # SBCL
 # https://lisp-lang.org/learn/getting-started/
-sbcl() {
+setup_sbcl() {
     # sudo apt install sbcl
     return 1
 }
 
 # Guile
 # https://www.gnu.org/software/guile/download/
-guile() {
+setup_guile() {
     # sudo apt install guile-3.0
     return 1
 }
@@ -67,14 +67,14 @@ guile() {
 
 # Haskell
 # https://docs.haskellstack.org/en/stable/install_and_upgrade/#ubuntu
-haskell() {
+setup_haskell() {
     # sudo apt install stack -y && stack upgrade
     return 1
 }
 
 # keybase
 ## Still kind of an unresolved issue: adding a new device on OS reinstall
-keybase() {
+setup_keybase() {
     # curl --remote-name https://prerelease.keybase.io/keybase_amd64.deb
     # sudo apt install ./keybase_amd64.deb
     # run_keybase
@@ -83,18 +83,18 @@ keybase() {
 
 # Docker
 # https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
-docker() {
+setup_docker() {
     sudo apt remove docker docker-engine docker.io containerd runc
 
     sudo apt update
-    sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release 
+    sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
 
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
     echo \
     "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null 
-    
+    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
     sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io
     # Check if Docker installation succeeded
     # sudo docker run hello_world
@@ -102,13 +102,13 @@ docker() {
 
 # croc
 # https://github.com/schollz/croc
-croc() {
+setup_croc() {
     curl https://getcroc.schollz.com | bash
 }
 
 # nix
 # https://nixos.org/download.html
-nix() {
+setup_nix() {
     curl -L https://nixos.org/nix/install | sh
 }
 # Chrome
@@ -125,24 +125,26 @@ function link_dotfile {
   dest="${HOME}/${1}"
   dateStr=$(date +%Y-%m-%d-%H%M)
 
-  if [ -h ~/${1} ]; then
-    # Existing symlink 
+  if [ -h ~/"${1}" ]; then
+    # Existing symlink
     echo "Removing existing symlink: ${dest}"
-    rm ${dest} 
+    rm "${dest}"
 
   elif [ -f "${dest}" ]; then
     # Existing file
     echo "Backing up existing file: ${dest}"
+    # shellcheck disable=SC2086
     mv ${dest}{,.${dateStr}}
 
   elif [ -d "${dest}" ]; then
     # Existing dir
     echo "Backing up existing dir: ${dest}"
+    # shellcheck disable=SC2086
     mv ${dest}{,.${dateStr}}
   fi
 
   echo "Creating new symlink: ${dest}"
-  ln -s ${dotfilesDir}/${1} ${dest}
+  ln -s "${dotfilesDir}/${1}" "${dest}"
 }
 
 link_dotfiles() {
@@ -161,12 +163,13 @@ link_dotfiles() {
 setup_dotfiles() {
     git submodule update --init --recursive
 
-    ln -sr $dotfilesDir/vimrc/.vimrc $dotfilesDir/.vimrc
+    ln -sr "$dotfilesDir/vimrc/.vimrc" "$dotfilesDir/.vimrc"
+    link_dotfiles
 }
 
-vim_setup() {
-    mkdir -p $dotfilesDir/.vim/bundle
-    cd $dotfilesDir/.vim/bundle
+setup_vim() {
+    mkdir -p "$dotfilesDir/.vim/bundle"
+    cd "$dotfilesDir/.vim/bundle" || exit
     git clone git://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
     vim +PluginInstall +qall
 
@@ -178,42 +181,41 @@ do_thing() {
     case $1 in
         apt|--apt)
             echo "Installing Apt Packages"
-            apt
+            setup_apt
             ;;
         rust|--rust)
             echo "Installing Rust"
-            rust
+            setup_rust
             ;;
         nim|--nim)
             echo "Installing Nim"
-            nim
+            setup_nim
             ;;
         tailscale|--tailscale)
             echo "Installing Tailscale"
-            tailscale
+            setup_tailscale
             ;;
         docker|--docker)
             echo "Installing Docker"
-            docker
+            setup_docker
             ;;
-	croc|--croc)
-	    echo "Installing croc"
-	    croc
-	    ;;
-	nix|--nix)
-	    echo "Installing Nix"
-	    nix
-	    ;;
-	dotfiles|--dotfiles)
+        croc|--croc)
+            echo "Installing croc"
+            setup_croc
+            ;;
+        nix|--nix)
+            echo "Installing Nix"
+            setup_nix
+            ;;
+        dotfiles|--dotfiles)
             echo "Setting up dotfiles"
-	    setup_dotfiles
-            link_dotfiles
-	    ;;
-	vim|--vim)
-	    echo "Setting up vim"
-	    vim_setup
-	    ;;
-        *)
+            setup_dotfiles
+            ;;
+        vim|--vim)
+            echo "Setting up vim"
+            setup_vim
+            ;;
+            *)
             echo "Unsupported argument: \"$1\""
             ;;
     esac
@@ -222,7 +224,7 @@ do_thing() {
 echo "-----------------------"
 echo "Jeremy's computer setup"
 echo "-----------------------"
-if [ -z "$@" ]
+if [ -z "$*" ]
 then
     echo "Nothing to do"
 else
