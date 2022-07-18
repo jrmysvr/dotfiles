@@ -1,13 +1,14 @@
-#!/usr/bin/bash
-# &gt; curl https://do_dotfiles.savor.page | sh
+#!/usr/bin/env bash
 
-sudo apt update &amp;&amp; sudo apt install -y curl git
+# > curl https://do_dotfiles.savor.page | sh
+
+sudo apt update && sudo apt install -y curl git
 
 (
     echo "Clone dotfiles..."
-    cd $HOME &amp;&amp;
-    git clone https://github.com/jrmysvr/dotfiles &amp;&amp;
-    cd dotfiles &amp;&amp;
+    cd "$HOME" && \
+    git clone https://github.com/jrmysvr/dotfiles && \
+    cd dotfiles && \
     bash setup.sh
 )
 
